@@ -41,6 +41,8 @@ Phase 4 通过。Blog、Follow 与 Feed 保留原类名和现有 Redis 技术路
 
 ## Git 与边界
 
-本报告在完成提交和推送后补充 commit hash 与 push 结果。
+- 功能提交：`14756a1 feat: adapt CityHub activity community flow`。
+- 分支：`main`。
+- 推送：已非强制推送至 `origin/main`（`93f3f49..14756a1 main -> main`）。
 
 本阶段未修改 Redis 活动缓存、秒杀、Lua、Redisson、BlockingQueue、RedisIdWorker、AI、前端视觉或 README。
