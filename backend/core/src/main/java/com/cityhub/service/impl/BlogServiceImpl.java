@@ -10,6 +10,7 @@ import com.cityhub.entity.Blog;
 import com.cityhub.entity.Follow;
 import com.cityhub.entity.User;
 import com.cityhub.mapper.BlogMapper;
+import com.cityhub.service.IActivityService;
 import com.cityhub.service.IBlogService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cityhub.service.IFollowService;
@@ -41,6 +42,9 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     private IFollowService followService;
 
     @Resource
+    private IActivityService activityService;
+
+    @Resource
     private StringRedisTemplate stringRedisTemplate;
 
     private static final DefaultRedisScript<Long> LIKE_SCRIPT;
@@ -68,7 +72,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
             return;
         }
         Long userId = user.getId();
-        String key = "blog:liked" + blog.getId();
+        String key = RedisConstants.BLOG_LIKED_KEY + blog.getId();
         Double score = stringRedisTemplate.opsForZSet().score(key, userId.toString());
         blog.setIsLike(score != null);
     }
@@ -104,8 +108,7 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     public Result likeBlog(Long id) {
         //获取登录用户,入参id是Blog的id
         Long userId = UserHolder.getUser().getId();
-        String key = "blog:liked" + id;
-        String countKey = "blog:liked:count" + id;
+        String key = RedisConstants.BLOG_LIKED_KEY + id;
         /*
         List<String> keys = Arrays.asList(
                 "blog:liked:" + id,
@@ -163,13 +166,16 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     public Result saveBlog(Blog blog){
         UserDTO user = UserHolder.getUser();
         blog.setUserId(user.getId());
+        if (blog.getActivityId() != null && activityService.getById(blog.getActivityId()) == null) {
+            return Result.fail("关联活动不存在");
+        }
         boolean isSuccess = save(blog);
         if(!isSuccess){
             return Result.fail("新增笔记失败");
         }
         List<Follow> follows = followService.query().eq("follow_user_id", user.getId()).list();
         List<Long> followUserIds = follows.stream()
-                .map(Follow::getFollowUserId)
+                .map(Follow::getUserId)
                 .collect(Collectors.toList());
 
         for(Long followIds:followUserIds){
@@ -230,6 +236,20 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         scrollResult.setMinTime(minTime);   //本次查询的最小时间戳，下次查询的参数(最大时间戳)
 
         return Result.ok(scrollResult);
+    }
+
+    @Override
+    public Result queryBlogOfActivity(Long activityId, Integer current) {
+        Page<Blog> page = query()
+                .eq("activity_id", activityId)
+                .orderByDesc("create_time")
+                .page(new Page<>(current, SystemConstants.MAX_PAGE_SIZE));
+        List<Blog> records = page.getRecords();
+        records.forEach(blog -> {
+            queryBlogUser(blog);
+            isBlogLiked(blog);
+        });
+        return Result.ok(records);
     }
 
 }

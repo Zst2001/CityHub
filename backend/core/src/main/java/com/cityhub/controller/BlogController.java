@@ -27,10 +27,8 @@ public class BlogController {
         // 获取登录用户
         UserDTO user = UserHolder.getUser();
         blog.setUserId(user.getId());
-        // 保存探店博文
-        blogService.saveBlog(blog);
-        // 返回id
-        return Result.ok(blog.getId());
+        // 保存活动体验动态
+        return blogService.saveBlog(blog);
     }
 
     @PutMapping("/like/{id}")
@@ -58,6 +56,12 @@ public class BlogController {
         // 上一次查询的 最小时间戳  即本次查询的最大时间戳
         // 第一次来查询的偏移量为 0
         return blogService.queryBlogOfFollow(max,offset);
+    }
+
+    @GetMapping("/of/activity")
+    public Result queryBlogOfActivity(@RequestParam("activityId") Long activityId,
+                                      @RequestParam(value = "current", defaultValue = "1") Integer current) {
+        return blogService.queryBlogOfActivity(activityId, current);
     }
 
     @GetMapping("/hot")

@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS `tb_user_info` (
 CREATE TABLE IF NOT EXISTS `tb_blog` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `shop_id` bigint(20) NOT NULL,
+  `activity_id` bigint(20) unsigned DEFAULT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   `title` varchar(255) NOT NULL,
   `images` varchar(2048) NOT NULL,
@@ -122,7 +123,7 @@ CREATE TABLE IF NOT EXISTS `tb_blog` (
   `comments` int(8) unsigned DEFAULT '0',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`), KEY `idx_blog_user` (`user_id`)
+  PRIMARY KEY (`id`), KEY `idx_blog_user` (`user_id`), KEY `idx_blog_activity` (`activity_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `tb_blog_comments` (
@@ -177,5 +178,15 @@ INSERT INTO `tb_seckill_ticket` (`ticket_id`, `stock`, `begin_time`, `end_time`)
   (3, 120, '2030-01-01 00:00:00', '2030-12-31 23:59:59'),
   (4, 24, '2030-01-01 00:00:00', '2030-12-31 23:59:59'),
   (5, 150, '2030-01-01 00:00:00', '2030-12-31 23:59:59');
+
+INSERT IGNORE INTO `tb_user` (`id`, `phone`, `nick_name`, `icon`) VALUES
+  (1, '13600000001', '城市漫游者', ''),
+  (2, '13600000002', '周末探索家', '');
+
+INSERT IGNORE INTO `tb_blog` (`id`, `shop_id`, `activity_id`, `user_id`, `title`, `images`, `content`, `liked`, `comments`) VALUES
+  (1, 0, 1, 1, '城市青年创意市集体验分享', '/imgs/activities/creative-market.jpg', '在黄浦滨江逛创意市集的一日记录。', 0, 0),
+  (2, 0, 2, 2, '夏日爵士音乐会现场记录', '/imgs/activities/summer-jazz.jpg', '徐汇滨江的夏夜爵士现场氛围很好。', 0, 0),
+  (3, 0, 3, 1, '当代摄影艺术展观展笔记', '/imgs/activities/photo-exhibition.jpg', '记录这次摄影展中最喜欢的作品。', 0, 0),
+  (4, 0, 4, 2, '周末陶艺体验课体验', '/imgs/activities/ceramic-workshop.jpg', '第一次拉坯的周末体验与小建议。', 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
