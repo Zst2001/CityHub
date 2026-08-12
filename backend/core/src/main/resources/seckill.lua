@@ -7,7 +7,7 @@ local ticketId = ARGV[1]
 local userId = ARGV[2]
 
 local stockKey = 'seckill:stock:' .. ticketId
-local orderKey = 'seckill:order' .. ticketId
+local orderKey = 'seckill:order:' .. ticketId
 
 
 if( tonumber(redis.call('get',stockKey)) <= 0) then
