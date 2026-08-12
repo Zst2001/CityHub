@@ -9,6 +9,7 @@ public class RedisConstants {
     public static final Long CACHE_NULL_TTL = 2L;
 
     public static final Long CACHE_ACTIVITY_TTL = 30L;
+    public static final Long CACHE_ACTIVITY_TTL_JITTER = 5L;
     public static final String CACHE_ACTIVITY_KEY = "cache:activity:";
 
     public static final String LOCK_ACTIVITY_KEY = "lock:activity:";

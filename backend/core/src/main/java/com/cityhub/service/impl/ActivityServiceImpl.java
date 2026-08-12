@@ -27,7 +27,7 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
     public Result queryById(Long id) {
         Activity activity = cacheClient.queryWithPassThrough(
                 RedisConstants.CACHE_ACTIVITY_KEY, id, Activity.class, this::getById,
-                RedisConstants.CACHE_ACTIVITY_TTL, TimeUnit.MINUTES);
+                RedisConstants.CACHE_ACTIVITY_TTL, RedisConstants.CACHE_ACTIVITY_TTL_JITTER, TimeUnit.MINUTES);
         return activity == null ? Result.fail("活动不存在") : Result.ok(activity);
     }
 

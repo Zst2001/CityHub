@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("activity_category")
+@TableName("tb_activity_category")
 public class ActivityCategory implements Serializable {
 
     private static final long serialVersionUID = 1L;

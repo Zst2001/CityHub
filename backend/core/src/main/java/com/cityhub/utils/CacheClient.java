@@ -11,6 +11,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -40,10 +41,26 @@ public class CacheClient {
         RedisData redisData = new RedisData();
         redisData.setExpireTime(LocalDateTime.now().plusSeconds(expireSeconds));
         redisData.setData(object);
-        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(object));
+        stringRedisTemplate.opsForValue().set(key, JSONUtil.toJsonStr(redisData));
+    }
+
+    /**
+     * Writes a normal-expiry cache entry with a bounded, non-negative jitter.
+     * The jitter is intentionally applied only by callers that opt in.
+     */
+    public void setWithRandomTtl(String key, Object object, Long baseTime, Long maxJitter, TimeUnit unit) {
+        long jitter = maxJitter == null || maxJitter <= 0
+                ? 0
+                : ThreadLocalRandom.current().nextLong(maxJitter + 1);
+        this.set(key, object, baseTime + jitter, unit);
     }
 
     public <R,ID> R queryWithPassThrough(String keyPrefix, ID id, Class<R>type, Function<ID,R>dbFallback,Long time,TimeUnit unit){
+        return queryWithPassThrough(keyPrefix, id, type, dbFallback, time, 0L, unit);
+    }
+
+    public <R,ID> R queryWithPassThrough(String keyPrefix, ID id, Class<R>type, Function<ID,R>dbFallback,
+                                           Long time, Long maxJitter, TimeUnit unit){
         String key = keyPrefix + id;
         String json = stringRedisTemplate.opsForValue().get(key);
 
@@ -62,7 +79,7 @@ public class CacheClient {
             return null;
         }
         //存在则写入redis
-        this.set(key,r,time,unit);
+        this.setWithRandomTtl(key, r, time, maxJitter, unit);
 
         return r;
     }
