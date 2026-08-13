@@ -1,99 +1,118 @@
-# Phase 6 CityHub AI 顾问：最终联调验收报告
+# Phase 6 CityHub AI 顾问最终验收报告
 
 ## 最终结论
 
-`REAL_LLM_INTEGRATION: BLOCKED_BY_STREAMING_TOOL_CALL_COMPATIBILITY`
+`REAL_LLM_INTEGRATION: PASS`
 
-Phase 6C 已定位并修正此前连接错实例的问题：CityHub 的真实数据在 Docker MySQL `cityhub-phase3b-mysql` 的宿主端口 **3307**，而不是本机 `mysqld` 监听的 3306。顾问服务可用现有 CityHub 应用账号连接 3307 并启动至 8084，Redis 与 LLM 环境变量也均可用。
+CityHub AI 顾问现正式使用 `qwen3.7-flash`、DashScope OpenAI-compatible API、Redis Chat Memory 与真实 CityHub MySQL 数据。原生 **Streaming Tool Calling** 已修复：模型真实选择 Tool，`ActivityTool` 查询 Docker MySQL 的 `cityhub` 数据库，Tool 结果回传模型后以流式响应输出。
 
-但对真实 `qwen3.7-flash` 进行流式 Tool Calling 时，当前固定的 LangChain4j `1.0.1-beta6` OpenAI starter 在解析提供方返回的流式 Tool Call 参数处抛出 `JsonParseException`，`/chat` 返回 HTTP 500。因此不能将活动搜索、分类、详情、票券、多轮记忆、反幻觉、预约引导、Stop 标记为通过。本阶段未升级依赖、未切换模型、未伪造验收结果。
+本阶段未采用 fallback、未切换模型、未添加 Tool、未用正则修复 JSON 或吞异常伪造成功。
 
-## MySQL 实例定位
+## Phase 6C 基线与原始复现
 
-| 项目 | 结论 | 依据 |
+| 项目 | 结果 |
+| --- | --- |
+| Phase 6C 基线提交 | `6f50963 test: verify CityHub AI assistant integration` |
+| 原始版本 | LangChain4j starter / reactor / community `1.0.1-beta6`，但 core / open-ai 解析为 `1.0.1` |
+| 原始异常 | `JsonParseException: Unexpected character ('(')` |
+| 失败位置 | `ChatCompletionChoice.Builder["delta"]` 的流式 Tool Call SSE 解析 |
+| 触发条件 | `qwen3.7-flash` + DashScope OpenAI-compatible + Streaming Tool Calling |
+
+## Direct Provider 诊断（绕过 LangChain4j）
+
+所有直连请求只在当前进程读取 `.env`；原始请求、Authorization Header 与 Key 均未写入文件或 Git。
+
+| 检查 | 结果 | 脱敏证据 |
 | --- | --- | --- |
-| Docker MySQL | PASS | `cityhub-phase3b-mysql`（MySQL 8.0.34）运行中 |
-| 宿主端口 | 3307 | `3306/tcp -> 0.0.0.0:3307` |
-| 3306 | 非 CityHub 容器 | 本机 `mysqld` 监听 |
-| 3307 | CityHub Docker 实例 | Docker backend / WSL 转发监听 |
-| 数据库 | `cityhub` | 容器环境标记 `MYSQL_DATABASE=cityhub`，且 schema 存在 |
-| 核心表与数据 | PASS | `tb_activity`、`tb_ticket`、`tb_reservation_order` 存在；活动 12 条、票券 12 条 |
-| 凭据来源 | located | Docker 容器环境包含 root credential 配置；未输出、未提交任何值 |
+| 非流式 Function Calling | PASS | 返回一个 `get_activity_detail` Tool Call，arguments 可解析为合法 JSON |
+| 普通 Streaming | PASS | 82 个 SSE 内容事件，最终 `finish_reason=stop` |
+| Streaming Tool Calling | PASS | `enable_thinking=false` 下原始 SSE 正常结束为 `finish_reason=tool_calls` |
+| 原始 Tool Call SSE | PASS | 首帧有完整 tool call id 与 function name；后续 chunks 仅分段 arguments，拼接为合法 `{"activityId": 3}` |
+| Provider 判断 | PASS | Provider 原始响应合法，问题不属于 DashScope 或 Tool Schema |
 
-已严格在**确认 3307 为正确实例之后**，按 `123 → 空密码 → 123456` 尝试 root 认证；三次均失败后立即停止，未猜测其他密码、未重置账号、未删除容器或卷。
+因此问题定位为旧 LangChain4j 的 OpenAI Streaming SSE Parser / Tool Call ID 累积兼容层，而非 MySQL、Redis、API Key 或 qwen3.7-flash Function Calling 能力。
 
-现有 `cityhub` 应用账号可经 `127.0.0.1:3307` 只读访问 CityHub 表。本地被忽略的 `.env` 已调整为此已验证连接（`DB_URL` 指向 3307；账号及密码未记录在版本库）。
+## 兼容修复
 
-**Phase 6B 根因：** `DB_URL` 指向了错误的 MySQL 实例/端口（3306）；同时 Docker root 认证不属于允许的三个候选值。顾问运行不需要为此重置 root，已使用现有最小权限应用账号。
+### 依赖统一
 
-## 配置与服务
+原依赖同时存在 beta starter 与正式 core/open-ai 的混用。现通过 `langchain4j-bom:1.15.1` 统一主版本：
 
-| 检查项 | 结果 | 说明 |
-| --- | --- | --- |
-| `.env` 由 `run-local.ps1` 加载 | PASS | 仅载入当前 PowerShell 子进程，未打印 Secret |
-| `.env` Git 忽略 | PASS | `.gitignore` 的 `.env` 规则命中 |
-| `ALIYUNCS_API_KEY` | PRESENT | 仅检查变量存在，不读取或输出值 |
-| LLM 模型 | PASS | chat / streaming 均使用 `LLM_MODEL_NAME=qwen3.7-flash` |
-| LLM API configuration | PRESENT | DashScope OpenAI-compatible endpoint 已配置 |
-| Redis | PASS | 使用现有本地配置 `PING → PONG` |
-| Core 8081 | PASS | 联调时处于监听状态 |
-| Web 5173 | PASS | 联调时处于监听状态 |
-| consultant 8084 | PASS（启动） | 经 `backend/consultant/run-local.ps1` 实际启动并监听 |
+| 模块 | 修复后版本 |
+| --- | --- |
+| `langchain4j` / `langchain4j-core` / `langchain4j-open-ai` | `1.15.1` |
+| OpenAI / Spring / Reactor / RAG starter | `1.15.1-beta25` |
+| community Redis starter | `1.15.0-beta25`（该社区模块独立发布线） |
+| Spring Boot / Java | 3.5.0 / 17（未升级） |
+
+`mvn dependency:tree` 已确认 LangChain4j 主模块不再解析到旧 1.0.1-beta6。
+
+### Qwen 模型配置
+
+新版 Builder 实际提供 `accumulateToolCallId(Boolean)` 与 `customParameters(Map)`，因此新增小范围 Qwen 模型配置：
+
+- Chat / Streaming 模型均从同一 `LLM_BASE_URL`、`ALIYUNCS_API_KEY`、`LLM_MODEL_NAME=qwen3.7-flash` 环境变量读取；
+- 两者均透传 `enable_thinking=false`；
+- Streaming 模型使用 `accumulateToolCallId(false)`，避免把 Qwen 首帧完整 id 与后续空 id 错误拼接；
+- 关闭请求与响应日志，避免记录模型交互或 Secret；
+- 改用新版 `AiServices.builder(...).tools(activityTool)` 显式装配，确保四个既有只读 Tool 真正进入请求；
+- 显式绑定 `/chat` 的 `memoryId` / `message` 请求参数，固定 Tomcat URI UTF-8；
+- 排除升级后被激活、但不属于运行链路的旧 Redis embedding store 自动配置；Redis Chat Memory 仍保留。
+
+最终架构：`NATIVE_STREAMING_TOOL_CALLING`，未采用“非流式 Tool Orchestration + 流式最终回答” fallback。
 
 ## 真实 Agent 验收
 
-| 检查项 | 结果 | 真实证据 |
+| 验收项 | 结果 | 真实依据 |
 | --- | --- | --- |
-| Activity Search | FAIL | 首次真实请求出现流式响应；后续 Tool Call 解析异常导致 HTTP 500 |
-| Category | FAIL | HTTP 500，未伪造分类结果 |
-| Detail | FAIL | HTTP 500，未伪造详情结果 |
-| Multi-turn Memory | BLOCKED | Redis ChatMemory 代码和 Redis 均可用，但无法完成真实 Tool Call 首轮 |
-| Ticket | FAIL | HTTP 500，未伪造票券/库存结果 |
-| No Hallucination | BLOCKED | System Prompt 与空结果 Tool 逻辑已实现，但真实会话无法完成 |
-| Reservation Guide | BLOCKED | 系统提示仅引导 `/activities/{id}`，不具备下单 Tool；真实回复未能完成 |
-| Activity Link | PASS（前端实现） | `/activities/{id}` 已以安全转义后链接渲染；实际模型回复受上述阻断 |
-| Streaming transport | PASS | 真实 `/chat` 首次响应分为多个 HTTP 流式分块 |
-| Streaming Tool Calling | FAIL | 当前 SDK 在解析 Tool Call delta 时异常 |
-| Stop Generation | BLOCKED | `AbortController.abort()` 已存在，但无法完成稳定的真实长响应回归 |
-| New Conversation | PASS（前端实现） | 清空消息并生成新的 `cityhub_ai_memory_id` |
+| Activity Search | PASS | `listActivitiesByCategory` / `searchActivities` 安全日志出现，模型返回真实展览与 `/activities/3` |
+| Category | PASS | `listActivitiesByCategory` 真实执行，返回亲子活动与真实活动链接 |
+| Detail | PASS | `getActivityDetail` 真实执行，活动 3 的地址、区域、时间与价格来自数据库 |
+| Multi-turn Memory | PASS | 同一 `memoryId` 下“摄影展 → 它在哪里”正确指向活动 3；Redis key 存在且 TTL 为正 |
+| Ticket | PASS | `getActivityTickets` 真实执行，返回真实票券、价格、规则与库存 |
+| No Hallucination | PASS | “火星探险活动”返回“当前没有查询到相关活动”，没有编造地点、票价或库存 |
+| Reservation Guide | PASS | 仅引导 `/activities/3` 使用既有预约流程；无 Reservation 写操作 |
+| Activity Link | PASS | Vue 先 HTML 转义模型内容，再将 `/activities/{id}` 安全渲染为站内可点击链接 |
+| Streaming | PASS | 真实 AI 请求均产生多个可见分块；原生 Tool Calling 路径稳定 HTTP 200 |
+| Stop Generation | PASS | 浏览器真实流中 Stop 控件出现并触发既有 `AbortController.abort()` |
+| New Conversation | PASS | 点击后消息数归零，`cityhub_ai_memory_id` 更换 |
 
-### 已定位的兼容性错误
+安全日志仅记录 `CityHub AI tool invoked: <toolName>`，不记录 Tool 参数、查询结果、API Key、数据库密码或 Redis 密码。
 
-真实请求的服务端日志显示：
+## 运行环境
 
-```text
-JsonParseException: Unexpected character ('('): was expecting comma
-... ChatCompletionChoice.Builder["delta"]
-```
+| 项目 | 结果 |
+| --- | --- |
+| CityHub MySQL | PASS：Docker `cityhub-phase3b-mysql`，宿主端口 3307，数据库 `cityhub` |
+| Redis | PASS：`PING → PONG`；Chat Memory key 验证存在 |
+| Core 8081 | PASS |
+| Web 5173 | PASS |
+| consultant 8084 | PASS：通过 `backend/consultant/run-local.ps1` 启动 |
+| LLM API configuration | PRESENT：不记录值 |
+| 正式模型 | `qwen3.7-flash` |
 
-异常出现在 LangChain4j OpenAI streaming SSE 对 Tool Call delta 的解析阶段，发生在真实提供方响应之后，而非 DataSource、Redis 或 API Key 认证阶段。官方 DashScope 文档说明 Qwen3.7 Flash 是混合思考模型，并提供 `enable_thinking` 控制；当前项目固定的 `langchain4j-open-ai-spring-boot-starter:1.0.1-beta6` 配置没有可安全透传该提供方扩展参数的现有配置项。本阶段受“不升级现有技术栈”约束，未进行依赖升级或模型参数重构。
+## 构建、页面与安全检查
 
-## 本次最小代码调整
-
-- `ActivityTool`：新增仅记录 Tool 名称的安全日志；不记录用户参数、SQL 结果、密码或 API Key。
-- `AssistantView.vue`：将模型输出中的 `/activities/{id}` 经过 HTML 转义后渲染为站内链接，避免把未可信模型内容直接作为 HTML。
-
-未修改 README、秒杀、Lua、Redisson、BlockingQueue、Blog/Follow 或 AI 功能范围之外的业务。
-
-## 构建与安全验证
-
-| 命令/检查 | 结果 |
+| 检查 | 结果 |
 | --- | --- |
 | `backend/consultant: mvn clean compile -DskipTests` | PASS |
 | `backend: mvn clean compile -DskipTests` | PASS（parent / core / consultant） |
 | `web: npm run build` | PASS |
+| `/`, `/activities`, `/community`, `/profile`, `/assistant` | 未发现本次依赖升级导致的前端构建回归；`/assistant` 经 Playwright 实测 |
 | `git diff --check` | PASS |
-| `git check-ignore -v .env` | PASS |
-| 已跟踪文件 API Key 检查 | PASS：仅变量占位/示例，不含真实值 |
-| 已跟踪文件常见密钥前缀检查 | 已检查；命中为非 Secret 文本，未发现真实 API Key |
+| `.env` Git 忽略 | PASS |
+| Git Secret 检查 | PASS：仅环境变量占位与公开配置文本，未发现真实 Key |
 
-## 后续处理建议（不属于本阶段）
+## 变更范围
 
-若要解除 `REAL_LLM_INTEGRATION` 阻断，应在获得用户授权后，针对 qwen3.7-flash 的流式 Function Calling 选择与 DashScope 响应格式兼容的 LangChain4j 版本或专用客户端，并重新执行本报告中的所有真实 Agent 验收项。不得仅凭静态代码将这些项改为 PASS。
+- consultant Maven BOM 与 LangChain4j 兼容升级；
+- Qwen Chat / Streaming 模型最小配置；
+- 新版 AI Service 显式 Tool 装配；
+- `/chat` 参数绑定与 UTF-8 URI 配置；
+- 旧、未使用 Redis embedding store 自动配置的隔离。
+
+未修改 README、Activity/Community/Reservation 业务模型、秒杀、Lua、Redisson、BlockingQueue、AI Tool 数量或 Phase 7 内容。
 
 ## Git
 
-- 分支：`main`
-- Phase 6C 验证提交：`test: verify CityHub AI assistant integration`
-- `.env` 未被暂存或提交；用户提供的 Phase6C 提示词保持未跟踪。
-- 推送：首次普通 `git push origin main` 因 GitHub 连接被重置失败；未执行 force push。后续仅允许重试普通推送。
+本报告和兼容修复将以 `fix: support Qwen streaming tool calls` 提交。`.env`、诊断日志及用户提供的 Phase6C/Phase6D 提示词均不纳入暂存；仅允许普通 push，禁止 force push。

@@ -63,6 +63,8 @@ mybatis-plus:
 
 server:
   port: 8084
+  tomcat:
+    uri-encoding: UTF-8
 
 # 健康检查配置
 management:

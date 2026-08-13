@@ -30,7 +30,21 @@
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <langchain4j.version>1.15.1</langchain4j.version>
     </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>dev.langchain4j</groupId>
+                <artifactId>langchain4j-bom</artifactId>
+                <version>${langchain4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <dependencies>
 
         <dependency>
@@ -47,13 +61,11 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
-            <version>1.0.1-beta6</version>
         </dependency>
         <!--AiServices相关的依赖-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-spring-boot-starter</artifactId>
-            <version>1.0.1-beta6</version>
         </dependency>
         <!--引入流式调用相关的依赖-->
         <dependency>
@@ -63,7 +75,6 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-reactor</artifactId>
-            <version>1.0.1-beta6</version>
         </dependency>
         <!--redis依赖-->
         <dependency>
@@ -74,20 +85,18 @@
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-easy-rag</artifactId>
-            <version>1.0.1-beta6</version>
         </dependency>
 
         <!--pdf解析器依赖-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-document-parser-apache-pdfbox</artifactId>
-            <version>1.0.1-beta6</version>
         </dependency>
         <!--引入langchain4j对于redis向量数据库的支持-->
         <dependency>
             <groupId>dev.langchain4j</groupId>
             <artifactId>langchain4j-community-redis-spring-boot-starter</artifactId>
-            <version>1.0.1-beta6</version>
+            <version>1.15.0-beta25</version>
         </dependency>
 
         <!--lombok-->
