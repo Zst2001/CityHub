@@ -166,6 +166,10 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     public Result saveBlog(Blog blog){
         UserDTO user = UserHolder.getUser();
         blog.setUserId(user.getId());
+        // Keep the non-null legacy column compatible with CityHub activity posts.
+        if (blog.getShopId() == null) {
+            blog.setShopId(0L);
+        }
         if (blog.getActivityId() != null && activityService.getById(blog.getActivityId()) == null) {
             return Result.fail("关联活动不存在");
         }
