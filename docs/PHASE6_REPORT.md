@@ -2,16 +2,26 @@
 
 ## 结论
 
-**代码迁移通过，真实 LLM 联调受用户配置阻断。**
+**代码迁移通过；Phase 6B 已确认本地模型配置与 Redis，但 CityHub MySQL root 认证阻断了 consultant 启动和真实 LLM Tool Calling。**
 
 | 项目 | 结果 |
 | --- | --- |
 | LLM_CODE_MIGRATION | PASS |
 | TOOL_CODE | PASS |
 | WEB_ASSISTANT_UI | PASS |
-| REAL_LLM_INTEGRATION | BLOCKED_BY_USER_CONFIG |
+| REAL_LLM_INTEGRATION | BLOCKED_BY_MYSQL_AUTH |
 
-本机未设置 `ALIYUNCS_API_KEY`，且 8084 未运行；没有伪造模型输出或切换其他 Provider。主站在此状态将 502 收敛为“AI 顾问暂时无法响应，请稍后重试。”
+Phase 6B 确认根目录 `.env` 包含 `ALIYUNCS_API_KEY`、`LLM_BASE_URL` 和 `LLM_MODEL_NAME=qwen3.7-flash`；8084 未启动是因为 MySQL root 仅获授权尝试的三个候选密码均无法认证。没有伪造模型输出或切换其他 Provider。主站在此状态将 502 收敛为“AI 顾问暂时无法响应，请稍后重试。”
+
+## Phase 6B 本地真实联调补验收
+
+- `.env`：存在、全部必需变量名存在，且 `.gitignore` 已忽略；Spring Boot 默认不会自动加载根 `.env`，因此新增 `backend/consultant/run-local.ps1`。该脚本仅在当前 PowerShell 进程读取 `.env` 并启动 consultant，不打印或提交 Secret。
+- LLM：`application.yml` 的 chat 与 streaming `base-url` 改为 `LLM_BASE_URL`，模型名改为 `LLM_MODEL_NAME`（默认 `qwen3.7-flash`）；本地 `.env` 实测目标模型为 `qwen3.7-flash`、公开 Base URL 为 DashScope compatible endpoint、API Key 为 PRESENT（未输出值）。
+- MySQL：依授权顺序仅尝试 root 密码 `123`、空、`123456`，三次均无法连接 `127.0.0.1:3306/cityhub`，随后立即停止；未继续猜测、未重置任何账号或数据。状态为 `MYSQL_AUTH: BLOCKED_BY_USER_PASSWORD`。
+- Redis：通过 `.env` 的连接参数执行 PING，结果 PONG；没有清空或删除 Redis 数据。
+- 服务：Core 8081 与 Vite 5173 已监听；consultant 8084 因上述 MySQL 认证阻断未启动。
+- 真实 Tool Calling、摄影展多轮 Redis Memory、Ticket、防幻觉、预约引导、真实 Streaming 和 Stop：全部 `BLOCKED_BY_MYSQL_AUTH`。这些检查依赖 consultant 成功连接 CityHub MySQL，未作伪造验证。
+- New Conversation、`memoryId` localStorage、AbortController、textarea 自适应和无 8084 的友好错误 UI 已在 Phase 6 前端验证；本轮未能将其标记为真实 LLM 流式 PASS。
 
 ## 基线与 consultant 原始架构
 
@@ -54,10 +64,10 @@
 | 验证项 | 结果 | 依据 |
 | --- | --- | --- |
 | Activity Tool 数据基础 | PASS | MySQL：摄影展 id=3、时间/区域/价格真实存在；Ticket 3 库存 120 |
-| Activity Search / Category / Detail / Ticket LLM 结果 | BLOCKED_BY_USER_CONFIG | 未配置 `ALIYUNCS_API_KEY`，不得伪造模型 Tool Calling 输出 |
-| 多轮上下文 | BLOCKED_BY_USER_CONFIG | Redis Memory 代码保留；真实模型不可运行 |
-| 不虚构测试 | BLOCKED_BY_USER_CONFIG | System Prompt 和空结果 Tool 代码已实现；无真实模型不可断言输出 |
-| 预约引导测试 | BLOCKED_BY_USER_CONFIG | Prompt 规定只引导详情页，真实模型不可运行 |
+| Activity Search / Category / Detail / Ticket LLM 结果 | BLOCKED_BY_MYSQL_AUTH | API Key 与 qwen3.7-flash 配置已确认；consultant 无法连接 CityHub MySQL，未启动真实 Tool Calling |
+| 多轮上下文 | BLOCKED_BY_MYSQL_AUTH | Redis PING 通过、Memory 代码保留；consultant 未能启动真实模型会话 |
+| 不虚构测试 | BLOCKED_BY_MYSQL_AUTH | System Prompt 和空结果 Tool 代码已实现；无真实模型不可断言输出 |
+| 预约引导测试 | BLOCKED_BY_MYSQL_AUTH | Prompt 规定只引导详情页，真实模型不可运行 |
 | `/assistant` | PASS | 浏览器真实渲染 CityHub AI 顾问与 4 条建议问题 |
 | 502 用户体验 | PASS | 无 8084 时浏览器显示友好错误，不显示堆栈/Key |
 | 1440 / 768 / 390 | PASS | 三档无横向溢出；390px Drawer 含 AI 顾问 |
@@ -67,7 +77,7 @@
 
 ## 后续真实 LLM 验证前提
 
-在本机安全设置 `ALIYUNCS_API_KEY`（不要提交）后，以 CityHub DB、Redis 启动 consultant 8084，再验证：摄影展搜索→“它在哪里”多轮、亲子分类、Ticket、火星探险空结果、预约详情页引导与 Redis memory key。
+请向用户确认 CityHub MySQL root 的正确本地密码（或将 `.env` 改为可认证的本地数据库用户）后，运行 `backend/consultant/run-local.ps1`。随后再验证：摄影展搜索→“它在哪里”多轮、亲子分类、Ticket、火星探险空结果、预约详情页引导与 Redis memory key。
 
 ## 已知限制
 
