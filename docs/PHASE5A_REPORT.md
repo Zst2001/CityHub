@@ -87,7 +87,7 @@ Phase 5A 通过。仓库根目录新增独立的 Vue 3 / Vite 工程 `web/`，�
 ## Git
 
 - 功能提交信息：`feat: scaffold CityHub web foundation`。
-- 提交 hash：`42cb1f6`。
+- 功能提交 hash：`2cc2ee1`。
 - 分支：`main`。
 - 提交前会检查 `git diff --check`、暂存内容与敏感文件；不会纳入 `node_modules`、`dist`、`.env.local` 或测试 Token。
-- Push 结果在提交后补充。
+- Push：首次尝试因 GitHub 443 连接超时未完成；将按非强制方式重试。
