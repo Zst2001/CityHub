@@ -1,3 +1,3 @@
 <script setup>defineProps({ title: { type: String, default: '这里还没有内容' }, description: { type: String, default: '换个方向逛逛，新的城市发现正在路上。' } })</script>
-<template><div class="state-wrap"><el-empty :description="description"><template #image><div class="state-mark">◌</div></template><h3>{{ title }}</h3></el-empty></div></template>
+<template><div class="state-wrap"><el-empty :description="description"><template #image><div class="state-mark">◌</div></template><h3>{{ title }}</h3><slot /></el-empty></div></template>
 <style scoped>.state-wrap { padding: var(--space-6) 0; }.state-mark { display:grid; place-items:center; width:76px; height:76px; border-radius:50%; background:var(--color-primary-soft); color:var(--color-primary); font-size:2.6rem; }h3 { margin:0; font-size:1rem; color:var(--color-text-primary); }</style>

@@ -12,8 +12,10 @@ dist
 dist-ssr
 *.local
 
-# Unused Vite starter assets; CityHub uses CSS-only placeholders in Phase 5A.
-src/assets/
+# Unused Vite starter assets. CityHub activity imagery is committed in src/assets/images.
+src/assets/hero.png
+src/assets/vite.svg
+src/assets/vue.svg
 public/favicon.svg
 public/icons.svg
 

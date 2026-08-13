@@ -18,9 +18,9 @@ request.interceptors.request.use((config) => {
 request.interceptors.response.use(
   (response) => {
     const result = response.data
-    if (result?.success === true) return result.data
+    if (result?.success === true) return response.config.returnResult ? result : result.data
     const message = result?.errorMsg || '请求未完成，请稍后重试'
-    ElMessage.error(message)
+    if (!response.config.silentBusinessError) ElMessage.error(message)
     return Promise.reject(new Error(message))
   },
   (error) => {

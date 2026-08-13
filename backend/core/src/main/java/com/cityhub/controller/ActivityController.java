@@ -50,6 +50,21 @@ public class ActivityController {
         return Result.ok(page.getRecords());
     }
 
+    /**
+     * Lightweight pageable activity query for the CityHub discovery page.
+     */
+    @GetMapping("/page")
+    public Result queryActivityPage(
+            @RequestParam(value = "current", defaultValue = "1") Integer current,
+            @RequestParam(value = "size", defaultValue = "5") Integer size) {
+        long pageSize = Math.min(Math.max(size, 1), SystemConstants.MAX_PAGE_SIZE);
+        Page<Activity> page = activityService.query()
+                .orderByDesc("score")
+                .orderByDesc("sold")
+                .page(new Page<>(current, pageSize));
+        return Result.ok(page.getRecords(), page.getTotal());
+    }
+
     @GetMapping("/of/name")
     public Result queryActivityByName(
             @RequestParam(value = "name", required = false) String name,
