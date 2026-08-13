@@ -10,6 +10,7 @@ const routes = [
       { path: 'activities', name: 'activities', component: () => import('../views/ActivityListView.vue') },
       { path: 'activities/:id', name: 'activity-detail', component: () => import('../views/ActivityDetailView.vue') },
       { path: 'community', name: 'community', component: () => import('../views/CommunityView.vue') },
+      { path: 'assistant', name: 'assistant', component: () => import('../views/AssistantView.vue') },
       { path: 'profile', name: 'profile', component: () => import('../views/ProfileView.vue'), meta: { requiresAuth: true } },
     ],
   },

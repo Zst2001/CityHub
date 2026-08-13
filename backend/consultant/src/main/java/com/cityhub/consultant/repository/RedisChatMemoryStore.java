@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Collections;
 
 @Repository
 public class RedisChatMemoryStore implements ChatMemoryStore {
@@ -20,8 +21,7 @@ public class RedisChatMemoryStore implements ChatMemoryStore {
         //获取会话消息
         String json = redisTemplate.opsForValue().get(memoryId);
         //把json字符串转化成List<ChatMessage>
-        List<ChatMessage> list = ChatMessageDeserializer.messagesFromJson(json);
-        return list;
+        return json == null ? Collections.emptyList() : ChatMessageDeserializer.messagesFromJson(json);
     }
 
     @Override

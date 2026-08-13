@@ -4,20 +4,20 @@ langchain4j:
       base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: ${ALIYUNCS_API_KEY}
       model-name: qwen-plus
-      log-requests: true
-      log-responses: true
+      log-requests: false
+      log-responses: false
     streaming-chat-model:
       base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: ${ALIYUNCS_API_KEY}
       model-name: qwen-plus
-      log-requests: true
-      log-responses: true
+      log-requests: false
+      log-responses: false
     embedding-model:
       base-url: https://dashscope.aliyuncs.com/compatible-mode/v1
       api-key: ${ALIYUNCS_API_KEY}
       model-name: text-embedding-v3
-      log-requests: true
-      log-responses: true
+      log-requests: false
+      log-responses: false
       max-segments-per-batch: 10
 
   community:
@@ -35,7 +35,7 @@ langchain4j:
           time-between-eviction-runs: 10s
 logging:
   level:
-    dev.langchain4j: debug
+    dev.langchain4j: info
 
 spring:
   application:
@@ -50,7 +50,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/redis_project?useSSL=false&serverTimezone=UTC}
+    url: ${DB_URL:jdbc:mysql://127.0.0.1:3306/cityhub?useSSL=false&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
 
