@@ -1,0 +1,80 @@
+services:
+  cityhub-mysql:
+    image: mysql:8.0.36
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - cityhub-mysql-data:/var/lib/mysql
+      - ./backend/core/src/main/resources/db/cityhub_schema.sql:/docker-entrypoint-initdb.d/01-cityhub-schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -uroot -p$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  cityhub-redis:
+    image: redis:7.4-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - cityhub-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  cityhub-core:
+    build:
+      context: .
+      dockerfile: docker/core.Dockerfile
+    environment:
+      JAVA_TOOL_OPTIONS: --add-opens=java.base/java.lang.invoke=ALL-UNNAMED
+      DB_URL: jdbc:mysql://cityhub-mysql:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: cityhub-redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      AI_CONSULTANT_URL: http://cityhub-consultant:8084
+    depends_on:
+      cityhub-mysql:
+        condition: service_healthy
+      cityhub-redis:
+        condition: service_healthy
+
+  cityhub-consultant:
+    build:
+      context: .
+      dockerfile: docker/consultant.Dockerfile
+    environment:
+      DB_URL: jdbc:mysql://cityhub-mysql:3306/${MYSQL_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      DB_USERNAME: ${MYSQL_USER}
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      REDIS_HOST: cityhub-redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      ALIYUNCS_API_KEY: ${ALIYUNCS_API_KEY}
+      LLM_BASE_URL: ${LLM_BASE_URL}
+      LLM_MODEL_NAME: ${LLM_MODEL_NAME}
+    depends_on:
+      cityhub-mysql:
+        condition: service_healthy
+      cityhub-redis:
+        condition: service_healthy
+
+  cityhub-web:
+    build:
+      context: .
+      dockerfile: docker/web.Dockerfile
+    ports:
+      - "8088:80"
+    depends_on:
+      - cityhub-core
+      - cityhub-consultant
+
+volumes:
+  cityhub-mysql-data:
+  cityhub-redis-data:

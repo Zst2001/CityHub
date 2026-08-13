@@ -26,11 +26,6 @@ public class Blog implements Serializable {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
     /**
-     * 历史商户关联字段，保留以兼容既有 Blog 数据。
-     */
-    private Long shopId;
-
-    /**
      * 关联的 CityHub 活动 id；活动体验动态可为空以兼容旧数据。
      */
     private Long activityId;

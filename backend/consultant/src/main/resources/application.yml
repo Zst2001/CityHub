@@ -12,27 +12,6 @@ langchain4j:
       model-name: ${LLM_MODEL_NAME:qwen3.7-flash}
       log-requests: false
       log-responses: false
-    embedding-model:
-      base-url: ${LLM_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode/v1}
-      api-key: ${ALIYUNCS_API_KEY}
-      model-name: text-embedding-v3
-      log-requests: false
-      log-responses: false
-      max-segments-per-batch: 10
-
-  community:
-    redis:
-      host: ${REDIS_HOST:127.0.0.1}
-      port: ${REDIS_PORT:6379}
-      password: ${REDIS_PASSWORD:}
-      database: 0
-      timeout: 5s
-      lettuce:
-        pool:
-          max-active: 10
-          max-idle: 10
-          min-idle: 1
-          time-between-eviction-runs: 10s
 logging:
   level:
     dev.langchain4j: info

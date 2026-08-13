@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Lightweight activity migrated from the original shop model.
+ * A CityHub activity that can have one or more reservation tickets.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

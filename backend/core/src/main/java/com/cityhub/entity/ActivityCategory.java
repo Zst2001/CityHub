@@ -12,7 +12,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Activity classification migrated from the original shop type model.
+ * A CityHub activity classification.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

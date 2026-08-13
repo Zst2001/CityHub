@@ -83,7 +83,7 @@ class SeckillReservationIntegrationTest {
         awaitOrderCount(1);
         assertEquals(2, mysqlStock());
         assertEquals("2", redisStock());
-        assertTrue(Boolean.TRUE.equals(stringRedisTemplate.hasKey("icr:" + RedisConstants.SECKILL_STOCK_KEY
+        assertTrue(Boolean.TRUE.equals(stringRedisTemplate.hasKey("icr:" + RedisConstants.RESERVATION_ORDER_ID_KEY
                 + ":" + LocalDateTime.now().format(java.time.format.DateTimeFormatter.ofPattern("yyyy:MM:dd")))));
 
         JSONObject duplicate = reserve(userA);

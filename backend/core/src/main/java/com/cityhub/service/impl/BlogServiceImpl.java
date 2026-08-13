@@ -18,10 +18,8 @@ import com.cityhub.service.IUserService;
 import com.cityhub.utils.RedisConstants;
 import com.cityhub.utils.SystemConstants;
 import com.cityhub.utils.UserHolder;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -46,14 +44,6 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
-
-    private static final DefaultRedisScript<Long> LIKE_SCRIPT;
-
-    static{
-        LIKE_SCRIPT = new DefaultRedisScript<>();
-        LIKE_SCRIPT.setLocation(new ClassPathResource("./like.lua"));
-        LIKE_SCRIPT.setResultType(Long.class);
-    }
 
     /**
      * 查询博客的发布者信息
@@ -109,19 +99,6 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
         //获取登录用户,入参id是Blog的id
         Long userId = UserHolder.getUser().getId();
         String key = RedisConstants.BLOG_LIKED_KEY + id;
-        /*
-        List<String> keys = Arrays.asList(
-                "blog:liked:" + id,
-                "blog:liked:count:" + id
-        );
-
-        stringRedisTemplate.execute(LIKE_SCRIPT, keys, userId.toString());
-
-        CompletableFuture.runAsync(() -> {
-            Long count = stringRedisTemplate.opsForSet().size(key);
-            update().set("liked", count).eq("id", id).update();
-        });
-        */
         Double score = stringRedisTemplate.opsForZSet().score(key, userId.toString());
         if(score == null){        //未点赞 点赞数+1、保存用户到set
             boolean isSuccess = update().setSql("liked = liked + 1").eq("id", id).update();
@@ -166,10 +143,6 @@ public class BlogServiceImpl extends ServiceImpl<BlogMapper, Blog> implements IB
     public Result saveBlog(Blog blog){
         UserDTO user = UserHolder.getUser();
         blog.setUserId(user.getId());
-        // Keep the non-null legacy column compatible with CityHub activity posts.
-        if (blog.getShopId() == null) {
-            blog.setShopId(0L);
-        }
         if (blog.getActivityId() != null && activityService.getById(blog.getActivityId()) == null) {
             return Result.fail("关联活动不存在");
         }

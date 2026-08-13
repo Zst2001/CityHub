@@ -100,11 +100,11 @@ class CommunityFlowIntegrationTest {
         assertTrue(common.getBool("success"));
         assertTrue(containsUser(JSONUtil.parseArray(common.get("data")), userC));
 
-        JSONObject invalidActivity = post(tokenB, "/blog", "{\"shopId\":0,\"activityId\":999999,\"title\":\"无效活动\","
+        JSONObject invalidActivity = post(tokenB, "/blog", "{\"activityId\":999999,\"title\":\"无效活动\","
                 + "\"images\":\"/imgs/activities/creative-market.jpg\",\"content\":\"不应保存\"}");
         assertFalse(invalidActivity.getBool("success"));
 
-        JSONObject published = post(tokenB, "/blog", "{\"shopId\":0,\"activityId\":1,\"title\":\"Phase4 活动体验动态\","
+        JSONObject published = post(tokenB, "/blog", "{\"activityId\":1,\"title\":\"Phase4 活动体验动态\","
                 + "\"images\":\"/imgs/activities/creative-market.jpg\",\"content\":\"真实社区链路集成测试\"}");
         assertTrue(published.getBool("success"));
         publishedBlogId = published.getLong("data");

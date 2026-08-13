@@ -11,7 +11,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * Reservation order migrated from the original voucher order model.
+ * A user's reservation for a CityHub ticket.
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

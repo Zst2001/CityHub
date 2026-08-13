@@ -1,0 +1,12 @@
+.git
+.env
+.env.*
+!.env.example
+**/target/*
+!backend/core/target/cityhub-core-0.0.1-SNAPSHOT.jar
+!backend/consultant/target/cityhub-ai-0.0.1-SNAPSHOT.jar
+web/node_modules
+web/dist
+frontend
+docs
+prompt

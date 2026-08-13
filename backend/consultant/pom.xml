@@ -82,23 +82,8 @@
             <artifactId>spring-boot-starter-data-redis</artifactId>
         </dependency>
         <!--rag-easy依赖-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-easy-rag</artifactId>
-        </dependency>
-
         <!--pdf解析器依赖-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-document-parser-apache-pdfbox</artifactId>
-        </dependency>
         <!--引入langchain4j对于redis向量数据库的支持-->
-        <dependency>
-            <groupId>dev.langchain4j</groupId>
-            <artifactId>langchain4j-community-redis-spring-boot-starter</artifactId>
-            <version>1.15.0-beta25</version>
-        </dependency>
-
         <!--lombok-->
         <dependency>
             <groupId>org.projectlombok</groupId>

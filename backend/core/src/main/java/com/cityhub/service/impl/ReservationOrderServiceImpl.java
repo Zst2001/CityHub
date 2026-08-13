@@ -94,7 +94,7 @@ public class ReservationOrderServiceImpl extends ServiceImpl<ReservationOrderMap
         if (code != 0) {
             return Result.fail(code == 1 ? "预约凭证已售罄" : "每位用户只能预约一次");
         }
-        long orderId = redisIDWorker.nextId(RedisConstants.SECKILL_STOCK_KEY);
+        long orderId = redisIDWorker.nextId(RedisConstants.RESERVATION_ORDER_ID_KEY);
         ReservationOrder order = new ReservationOrder();
         order.setId(orderId);
         order.setTicketId(ticketId);
@@ -119,7 +119,7 @@ public class ReservationOrderServiceImpl extends ServiceImpl<ReservationOrderMap
         if (!success) {
             return Result.fail("预约凭证已售罄");
         }
-        long orderId = redisIDWorker.nextId(RedisConstants.SECKILL_STOCK_KEY);
+        long orderId = redisIDWorker.nextId(RedisConstants.RESERVATION_ORDER_ID_KEY);
         ReservationOrder order = new ReservationOrder();
         order.setId(orderId);
         order.setTicketId(ticketId);

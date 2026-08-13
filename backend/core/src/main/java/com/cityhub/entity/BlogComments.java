@@ -31,7 +31,7 @@ public class BlogComments implements Serializable {
     private Long userId;
 
     /**
-     * 探店id
+     * 关联动态 id
      */
     private Long blogId;
 
