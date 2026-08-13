@@ -108,7 +108,6 @@ Docker 构建：Web 仍在镜像中 `npm ci && npm run build`；Java 镜像消�
 
 ## 10. Git
 
-- 最终提交：`35b8ee704036a646cd3fc34bc74bd4a799cd95ba`，信息为 `chore: finalize CityHub for deployment`。
-- 该提交后的截图精简修订会以同一正常推送一并同步。
-- 第一次 `git push origin main` 因当前执行环境无法建立到 `github.com:443` 的连接失败；未使用 force push，需网络恢复后重试。
-- 除三个用户提供且未追踪的历史提示词文件外，工作树将保持干净；它们不属于本阶段、不含在提交中。
+- Phase 7 主提交：`35b8ee704036a646cd3fc34bc74bd4a799cd95ba`，信息为 `chore: finalize CityHub for deployment`；报告与截图精简提交：`22884fdf89c38e452cc3ab0dfb6ea6a578022d0c`。
+- 已正常推送到 `origin/main`，未使用 force push。
+- 除三个用户提供且未追踪的历史提示词文件外，工作树干净；它们不属于本阶段，也未包含在提交中。
