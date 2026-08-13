@@ -1,0 +1,2 @@
+<script setup>import PageContainer from '../components/common/PageContainer.vue'; import EmptyState from '../components/common/EmptyState.vue'; import SectionHeader from '../components/common/SectionHeader.vue'</script>
+<template><PageContainer><SectionHeader eyebrow="City voices" title="活动社区" description="记录走进展览、音乐与街区之后的真实感受。" /><EmptyState title="活动体验正在汇集" description="下一阶段将接入动态、点赞、关注与 Feed。" /></PageContainer></template>

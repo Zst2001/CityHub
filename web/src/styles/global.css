@@ -1,0 +1,14 @@
+body {
+  color: var(--color-text-primary);
+  background: radial-gradient(circle at 8% 0%, rgba(200, 123, 82, 0.12), transparent 28rem), var(--color-bg);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+#app { min-height: 100vh; }
+.page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.page-main { flex: 1; }
+.content-container { width: min(var(--container-max), calc(100% - 48px)); margin: 0 auto; }
+.eyebrow { color: var(--color-primary); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; }
+
+@media (max-width: 767px) { .content-container { width: min(var(--container-max), calc(100% - 32px)); } }

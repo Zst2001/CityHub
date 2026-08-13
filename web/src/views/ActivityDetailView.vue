@@ -1,0 +1,2 @@
+<script setup>import PageContainer from '../components/common/PageContainer.vue'; import EmptyState from '../components/common/EmptyState.vue'; import SectionHeader from '../components/common/SectionHeader.vue'</script>
+<template><PageContainer><SectionHeader eyebrow="Activity detail" title="活动详情" description="活动信息、预约凭证与体验动态将在这里汇合。" /><EmptyState title="详情页面即将准备好" description="下一阶段将接入活动、Ticket 与预约交互。" /></PageContainer></template>

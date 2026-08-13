@@ -1,0 +1,2 @@
+<template><main class="not-found"><span class="eyebrow">404</span><h1>没有找到这个页面</h1><p>这条城市小路暂时还没有开通。</p><el-button type="primary" @click="$router.push('/')">返回首页</el-button></main></template>
+<style scoped>.not-found { display:grid; min-height:100vh; place-content:center; justify-items:center; padding:var(--space-5); text-align:center; }.not-found h1 { margin:var(--space-3) 0; font-family:Georgia, "Songti SC", serif; font-size:clamp(2.2rem, 5vw, 4.5rem); letter-spacing:-.07em; }.not-found p { margin:0 0 var(--space-5); color:var(--color-text-secondary); }</style>

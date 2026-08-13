@@ -1,0 +1,2 @@
+<script setup>import PageContainer from '../components/common/PageContainer.vue'; import EmptyState from '../components/common/EmptyState.vue'; import SectionHeader from '../components/common/SectionHeader.vue'</script>
+<template><PageContainer><SectionHeader eyebrow="Discover" title="发现活动" description="按类别、关键词和地点寻找下一场城市相遇。" /><EmptyState title="活动列表正在整理" description="下一阶段将接入真实分类、搜索与活动分页数据。" /></PageContainer></template>

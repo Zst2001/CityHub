@@ -1,0 +1,2 @@
+<script setup>import PageContainer from '../components/common/PageContainer.vue'; import EmptyState from '../components/common/EmptyState.vue'; import SectionHeader from '../components/common/SectionHeader.vue'; import { useUserStore } from '../stores/user'; const userStore=useUserStore()</script>
+<template><PageContainer><SectionHeader eyebrow="My CityHub" title="个人中心" :description="userStore.user ? `你好，${userStore.user.nickName}` : '正在恢复你的账户信息。'" /><EmptyState title="你的活动足迹将在这里出现" description="预约记录和我的动态会在后续阶段逐步接入。" /></PageContainer></template>

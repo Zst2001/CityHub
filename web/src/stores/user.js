@@ -1,0 +1,42 @@
+import { computed, ref } from 'vue'
+import { defineStore } from 'pinia'
+import { getCurrentUser } from '../api/user'
+import { getToken, removeToken, setToken as persistToken } from '../utils/storage'
+
+export const useUserStore = defineStore('user', () => {
+  const token = ref(getToken())
+  const user = ref(null)
+  const isLoggedIn = computed(() => Boolean(token.value && user.value))
+
+  function setToken(value) {
+    token.value = value
+    persistToken(value)
+  }
+
+  function clearAuth() {
+    token.value = ''
+    user.value = null
+    removeToken()
+  }
+
+  async function fetchCurrentUser() {
+    if (!token.value) return null
+    const currentUser = await getCurrentUser()
+    user.value = currentUser
+    return currentUser
+  }
+
+  async function restoreSession() {
+    if (!token.value || user.value) return user.value
+    try {
+      return await fetchCurrentUser()
+    } catch {
+      clearAuth()
+      return null
+    }
+  }
+
+  function logout() { clearAuth() }
+
+  return { token, user, isLoggedIn, setToken, clearAuth, fetchCurrentUser, restoreSession, logout }
+})
