@@ -54,8 +54,19 @@ async function handleAdminLogin() {
   try {
     const { adminLogin } = await import('../api/admin')
     const token = await adminLogin(adminForm.value)
-    userStore.setToken(token); await userStore.fetchCurrentUser()
-    router.replace(route.query.redirect || '/admin/activities')
+    userStore.setToken(token)
+    await userStore.fetchCurrentUser({ silentError: true, silentBusinessError: true })
+    if (userStore.user?.role !== 'ADMIN') throw new Error('ADMIN_ROLE_INVALID')
+    await router.replace(route.query.redirect || '/admin/activities')
+  } catch (error) {
+    userStore.clearAuth()
+    if (error?.message === 'ADMIN_ROLE_INVALID') {
+      ElMessage.error('管理员身份校验失败，请重新登录')
+    } else if (error?.config?.url?.includes('/user/me')) {
+      ElMessage.error('登录状态初始化失败，请重新登录')
+    } else if (!error?.config && !error?.response && error?.message !== '用户名或密码错误') {
+      ElMessage.error('登录状态初始化失败，请重新登录')
+    }
   } finally { submitting.value = false }
 }
 </script>

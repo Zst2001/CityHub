@@ -102,6 +102,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return createToken(user);
     }
 
+    @Override
+    public Result logout(String token) {
+        if (token != null && !token.trim().isEmpty()) {
+            stringRedisTemplate.delete(LOGIN_USER_KEY + token);
+        }
+        return Result.ok();
+    }
+
     private Result createToken(User user) {
         String token = UUID.randomUUID().toString();
         UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);

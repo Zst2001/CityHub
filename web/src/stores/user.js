@@ -1,6 +1,6 @@
 import { computed, ref } from 'vue'
 import { defineStore } from 'pinia'
-import { getCurrentUser } from '../api/user'
+import { getCurrentUser, logout as logoutApi } from '../api/user'
 import { getToken, removeToken, setToken as persistToken } from '../utils/storage'
 
 export const useUserStore = defineStore('user', () => {
@@ -20,9 +20,9 @@ export const useUserStore = defineStore('user', () => {
     removeToken()
   }
 
-  async function fetchCurrentUser() {
+  async function fetchCurrentUser(config = {}) {
     if (!token.value) return null
-    const currentUser = await getCurrentUser()
+    const currentUser = await getCurrentUser(config)
     user.value = currentUser
     return currentUser
   }
@@ -37,7 +37,13 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
-  function logout() { clearAuth() }
+  async function logout() {
+    try {
+      await logoutApi()
+    } finally {
+      clearAuth()
+    }
+  }
 
   return { token, user, isLoggedIn, isAdmin, setToken, clearAuth, fetchCurrentUser, restoreSession, logout }
 })

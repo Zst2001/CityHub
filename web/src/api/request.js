@@ -31,7 +31,7 @@ request.interceptors.response.use(
       if (current.path !== '/login') {
         router.push({ name: 'login', query: { redirect: current.fullPath } })
       }
-    } else {
+    } else if (!error.config?.silentError) {
       ElMessage.error(error.response?.data?.errorMsg || '网络连接失败，请稍后重试')
     }
     return Promise.reject(error)
