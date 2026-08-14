@@ -210,7 +210,11 @@ INSERT IGNORE INTO `tb_blog` (`id`, `activity_id`, `user_id`, `title`, `images`,
   (1, 1, 1, '城市青年创意市集体验分享', '/imgs/activities/creative-market.jpg', '在黄浦滨江逛创意市集的一日记录。', 0, 0),
   (2, 2, 2, '夏日爵士音乐会现场记录', '/imgs/activities/summer-jazz.jpg', '徐汇滨江的夏夜爵士现场氛围很好。', 0, 0),
   (3, 3, 1, '当代摄影艺术展观展笔记', '/imgs/activities/photo-exhibition.jpg', '记录这次摄影展中最喜欢的作品。', 0, 0),
-  (4, 4, 2, '周末陶艺体验课体验', '/imgs/activities/ceramic-workshop.jpg', '第一次拉坯的周末体验与小建议。', 0, 0);
+  (4, 4, 2, '周末陶艺体验课体验', '/imgs/activities/ceramic-workshop.jpg', '第一次拉坯的周末体验与小建议。', 0, 0),
+  (5, 6, 1, '夜跑之后的城市风', '/imgs/activities/night-running.jpg', '沿着西岸跑道慢下来，夜里的城市也很有呼吸感。', 0, 0),
+  (6, 7, 2, '亲子自然工作坊小记', '/imgs/activities/nature-workshop.jpg', '和孩子一起认识植物，也重新认识了周末。', 0, 0),
+  (7, 8, 1, '小剧场演出散场后', '/imgs/activities/theatre.jpg', '一场不大的演出，留下了很久的回声。', 0, 0),
+  (8, 11, 2, '咖啡市集周末路线', '/imgs/activities/coffee-market.jpg', '从一杯手冲开始，逛完街区刚好到黄昏。', 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
 

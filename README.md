@@ -2,13 +2,43 @@
 
 CityHub 面向城市文化活动，提供活动发现、限量预约、社区互动与 AI 活动顾问。项目采用前后端分离架构：浏览器通过 Nginx 访问 Vue Web，并分别代理 Core API 与 AI Streaming API。
 
-## 项目截图
+## GitHub Showcase
 
-| 首页 | 活动详情 |
-| --- | --- |
-| ![CityHub 首页](docs/images/phase7-home-desktop.png) | ![CityHub 活动详情](docs/images/phase7-activity-detail-desktop.png) |
-| 社区 | AI 顾问 |
-| ![CityHub 社区](docs/images/phase7-community-desktop.png) | ![CityHub AI 顾问](docs/images/phase7-assistant-desktop.png) |
+以下截图均来自 Docker/Nginx 真实页面 `http://127.0.0.1:8088`，统一使用横屏宽图，按用户旅程纵向展示。
+
+### 首页 / 活动发现
+
+用一张暖白与深墨的首页把城市文化活动、分类入口和周末灵感放在同一条发现路径上。
+
+![CityHub 首页与活动发现](docs/images/showcase-home.png)
+
+活动列表支持关键词、分类和分页，让用户从灵感进入可预约的活动清单。
+
+![CityHub 活动发现列表](docs/images/showcase-discovery.png)
+
+### 活动详情 / 预约
+
+详情页把真实活动信息、地点、价格、活动动态预览和限量预约凭证集中呈现。
+
+![CityHub 活动详情与预约](docs/images/showcase-activity-detail.png)
+
+### 社区互动
+
+社区动态关联真实 Activity，用户可以浏览活动体验、点赞并继续探索对应活动。
+
+![CityHub 社区互动](docs/images/showcase-community.png)
+
+### AI 活动顾问
+
+AI 顾问使用真实 Qwen `qwen3.7-flash` 与 ActivityTool 查询活动，并将预约引导回现有详情页流程。
+
+![CityHub AI 活动顾问](docs/images/showcase-ai-assistant.png)
+
+### 管理员活动管理
+
+管理员可以在受保护的管理页编辑 Activity 与 Ticket/库存，沿用现有缓存一致性和预约链路。
+
+![CityHub 管理员活动管理](docs/images/showcase-admin-activities.png)
 
 ## 已实现功能
 
