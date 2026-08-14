@@ -2,6 +2,7 @@ package com.cityhub.config;
 
 import com.cityhub.utils.LoginInterceptor;
 import com.cityhub.utils.RefreshTokenInterceptor;
+import com.cityhub.utils.AdminInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -28,10 +29,13 @@ public class MvcConfig implements WebMvcConfigurer {
                         "/upload/**",
                         "/ticket/**",
                         "/user/login",
+                        "/admin/login",
                         "/user/login"
                 ).order(1);
 
         registry.addInterceptor(new RefreshTokenInterceptor(stringRedisTemplate)).addPathPatterns("/**").order(0);
+        registry.addInterceptor(new AdminInterceptor()).addPathPatterns("/admin/**")
+                .excludePathPatterns("/admin/login").order(2);
     }
 
 

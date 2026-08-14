@@ -7,6 +7,7 @@ export const useUserStore = defineStore('user', () => {
   const token = ref(getToken())
   const user = ref(null)
   const isLoggedIn = computed(() => Boolean(token.value && user.value))
+  const isAdmin = computed(() => user.value?.role === 'ADMIN')
 
   function setToken(value) {
     token.value = value
@@ -38,5 +39,5 @@ export const useUserStore = defineStore('user', () => {
 
   function logout() { clearAuth() }
 
-  return { token, user, isLoggedIn, setToken, clearAuth, fetchCurrentUser, restoreSession, logout }
+  return { token, user, isLoggedIn, isAdmin, setToken, clearAuth, fetchCurrentUser, restoreSession, logout }
 })

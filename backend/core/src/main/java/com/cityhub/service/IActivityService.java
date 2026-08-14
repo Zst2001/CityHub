@@ -9,4 +9,6 @@ public interface IActivityService extends IService<Activity> {
     Result queryById(Long id);
 
     Result update(Activity activity);
+
+    Result adminPage(String keyword, Integer current);
 }

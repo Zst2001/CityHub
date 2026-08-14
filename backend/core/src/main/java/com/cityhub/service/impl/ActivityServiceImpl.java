@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.concurrent.TimeUnit;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 @Service
 public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> implements IActivityService {
@@ -40,6 +41,13 @@ public class ActivityServiceImpl extends ServiceImpl<ActivityMapper, Activity> i
         updateById(activity);
         stringRedisTemplate.delete(RedisConstants.CACHE_ACTIVITY_KEY + activity.getId());
         return Result.ok();
+    }
+
+    @Override
+    public Result adminPage(String keyword, Integer current) {
+        Page<Activity> page = query().like(org.springframework.util.StringUtils.hasText(keyword), "title", keyword)
+                .orderByDesc("score").page(new Page<>(Math.max(current, 1), 10));
+        return Result.ok(page.getRecords(), page.getTotal());
     }
 
     public Activity queryWithLogicalExpire(Long id) {

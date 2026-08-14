@@ -48,6 +48,11 @@ public class UserController {
         return userService.login(loginForm,session);
     }
 
+    @PostMapping("/admin-login")
+    public Result adminLogin(@RequestBody LoginFormDTO loginForm) {
+        return userService.adminLogin(loginForm);
+    }
+
     /**
      * 登出功能
      * @return 无

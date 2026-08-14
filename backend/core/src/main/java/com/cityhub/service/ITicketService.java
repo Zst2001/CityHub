@@ -9,4 +9,6 @@ public interface ITicketService extends IService<Ticket> {
     Result queryTicketOfActivity(Long activityId);
 
     void addSeckillTicket(Ticket ticket);
+
+    Result updateAdminTicket(Ticket ticket);
 }

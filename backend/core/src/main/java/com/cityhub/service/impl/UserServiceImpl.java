@@ -22,11 +22,15 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
 import static com.cityhub.utils.RedisConstants.*;
 
 
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IUserService {
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @Resource
     private StringRedisTemplate stringRedisTemplate;
@@ -81,6 +85,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         stringRedisTemplate.expire(tokenKey,LOGIN_USER_TTL,TimeUnit.MINUTES);
 
 
+        return Result.ok(token);
+    }
+
+    @Override
+    public Result adminLogin(LoginFormDTO loginForm) {
+        if (loginForm == null || cn.hutool.core.util.StrUtil.isBlank(loginForm.getUsername())
+                || cn.hutool.core.util.StrUtil.isBlank(loginForm.getPassword())) {
+            return Result.fail("用户名或密码错误");
+        }
+        User user = query().eq("username", loginForm.getUsername()).one();
+        if (user == null || !"ADMIN".equals(user.getRole())
+                || !passwordEncoder.matches(loginForm.getPassword(), user.getPassword())) {
+            return Result.fail("用户名或密码错误");
+        }
+        return createToken(user);
+    }
+
+    private Result createToken(User user) {
+        String token = UUID.randomUUID().toString();
+        UserDTO userDTO = BeanUtil.copyProperties(user, UserDTO.class);
+        Map<String, Object> userMap = BeanUtil.beanToMap(userDTO, new HashMap<>(),
+                CopyOptions.create().setIgnoreNullValue(true)
+                        .setFieldValueEditor((fieldName, fieldValue) -> fieldValue.toString()));
+        String tokenKey = LOGIN_USER_KEY + token;
+        stringRedisTemplate.opsForHash().putAll(tokenKey, userMap);
+        stringRedisTemplate.expire(tokenKey, LOGIN_USER_TTL, TimeUnit.MINUTES);
         return Result.ok(token);
     }
 

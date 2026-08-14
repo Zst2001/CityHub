@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { getToken } from '../utils/storage'
 import DefaultLayout from '../layouts/DefaultLayout.vue'
+import { useUserStore } from '../stores/user'
 
 const routes = [
   {
@@ -15,15 +16,19 @@ const routes = [
     ],
   },
   { path: '/login', name: 'login', component: () => import('../views/LoginView.vue') },
+  { path: '/admin/activities', name: 'admin-activities', component: () => import('../views/AdminActivitiesView.vue'), meta: { requiresAuth: true, requiresAdmin: true } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') },
 ]
 
 const router = createRouter({ history: createWebHistory(), routes, scrollBehavior: () => ({ top: 0 }) })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
+  const userStore = useUserStore()
   if (to.meta.requiresAuth && !getToken()) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
+  if (getToken() && !userStore.user) await userStore.restoreSession()
+  if (to.meta.requiresAdmin && userStore.user?.role !== 'ADMIN') return { name: 'home' }
   return true
 })
 

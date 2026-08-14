@@ -8,6 +8,7 @@ const router = useRouter()
 const userStore = useUserStore()
 const userLabel = computed(() => userStore.user?.nickName || '我的 CityHub')
 const menuOpen = ref(false)
+const isAdmin = computed(() => userStore.isAdmin)
 
 function goToProfile() { router.push('/profile') }
 function go(path) { menuOpen.value = false; router.push(path) }
@@ -21,6 +22,7 @@ function go(path) { menuOpen.value = false; router.push(path) }
         <RouterLink to="/activities">发现活动</RouterLink>
         <RouterLink to="/community">活动社区</RouterLink>
         <RouterLink to="/assistant">AI 顾问</RouterLink>
+        <RouterLink v-if="isAdmin" to="/admin/activities">活动管理</RouterLink>
       </nav>
       <div class="header-user">
         <el-button v-if="!userStore.isLoggedIn" type="primary" @click="router.push('/login')">登录</el-button>
@@ -31,7 +33,7 @@ function go(path) { menuOpen.value = false; router.push(path) }
       </div>
       <el-button class="menu-button" text circle aria-label="打开导航" @click="menuOpen = true"><el-icon :size="22"><Menu /></el-icon></el-button>
     </div>
-    <el-drawer v-model="menuOpen" direction="rtl" size="min(82vw, 340px)" :with-header="false"><nav class="drawer-nav"><RouterLink to="/" @click="menuOpen = false">首页</RouterLink><button @click="go('/activities')">发现活动</button><button @click="go('/community')">活动社区</button><button @click="go('/assistant')">AI 顾问</button><button @click="go(userStore.isLoggedIn ? '/profile' : '/login')">{{ userStore.isLoggedIn ? '个人中心' : '登录' }}</button></nav></el-drawer>
+    <el-drawer v-model="menuOpen" direction="rtl" size="min(82vw, 340px)" :with-header="false"><nav class="drawer-nav"><RouterLink to="/" @click="menuOpen = false">首页</RouterLink><button @click="go('/activities')">发现活动</button><button @click="go('/community')">活动社区</button><button @click="go('/assistant')">AI 顾问</button><button v-if="isAdmin" @click="go('/admin/activities')">活动管理</button><button @click="go(userStore.isLoggedIn ? '/profile' : '/login')">{{ userStore.isLoggedIn ? '个人中心' : '登录' }}</button></nav></el-drawer>
   </header>
 </template>
 

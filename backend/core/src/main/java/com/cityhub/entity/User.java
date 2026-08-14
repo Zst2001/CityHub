@@ -30,10 +30,14 @@ public class User implements Serializable {
      */
     private String phone;
 
+    private String username;
+
     /**
      * 密码，加密存储
      */
     private String password;
+
+    private String role = "USER";
 
     /**
      * 昵称，默认是随机字符

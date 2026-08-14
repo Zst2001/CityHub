@@ -86,14 +86,17 @@ CREATE TABLE `tb_reservation_order` (
 -- Community and login tables deliberately remain available to the existing modules.
 CREATE TABLE IF NOT EXISTS `tb_user` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `phone` varchar(11) NOT NULL,
+  `phone` varchar(11) DEFAULT NULL,
+  `username` varchar(64) DEFAULT NULL,
   `password` varchar(128) NOT NULL DEFAULT '',
+  `role` varchar(16) NOT NULL DEFAULT 'USER',
   `nick_name` varchar(32) NOT NULL,
   `icon` varchar(255) NOT NULL DEFAULT '',
   `create_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `update_time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_user_phone` (`phone`)
+  UNIQUE KEY `uk_user_phone` (`phone`),
+  UNIQUE KEY `uk_user_username` (`username`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS `tb_user_info` (
@@ -210,3 +213,13 @@ INSERT IGNORE INTO `tb_blog` (`id`, `activity_id`, `user_id`, `title`, `images`,
   (4, 4, 2, '周末陶艺体验课体验', '/imgs/activities/ceramic-workshop.jpg', '第一次拉坯的周末体验与小建议。', 0, 0);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+-- Admin demo account: password is BCrypt(123456), never plaintext.
+ALTER TABLE `tb_user`
+  ADD COLUMN IF NOT EXISTS `username` varchar(64) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS `role` varchar(16) NOT NULL DEFAULT 'USER';
+ALTER TABLE `tb_user` MODIFY COLUMN `phone` varchar(11) DEFAULT NULL;
+ALTER TABLE `tb_user` ADD UNIQUE KEY `uk_user_username` (`username`);
+INSERT INTO `tb_user` (`phone`, `username`, `password`, `role`, `nick_name`, `icon`)
+VALUES (NULL, 'root', '$2a$10$GGJrrsHUDYfMPPYNpag9Se3wNavYo804J9sUYiU4v.TGK5y/R8OXm', 'ADMIN', 'CityHub Admin', '')
+ON DUPLICATE KEY UPDATE password=VALUES(password), role='ADMIN', nick_name=VALUES(nick_name);
