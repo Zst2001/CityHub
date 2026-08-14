@@ -6,27 +6,17 @@ CityHub 面向城市文化活动，提供活动发现、限量预约、社区互
 
 以下截图均来自 Docker/Nginx 真实页面 `http://127.0.0.1:8088`，统一使用横屏宽图，按用户旅程纵向展示。
 
-### 首页 / 本周热门
+### 首页
 
 用一张暖白与深墨的首页把城市文化活动、分类入口和周末灵感放在同一条发现路径上。
 
-![CityHub 首页与活动发现](docs/images/showcase-home.png)
-
-本周热门把真实活动卡片、时间、地点和预约价格集中呈现，帮助用户快速决定下一站。
-
-![CityHub 本周热门活动](docs/images/showcase-home-hot.png)
+![CityHub 首页](docs/images/showcase-home.png)
 
 ### 活动详情 / 预约
 
 详情页把真实活动信息、地点、价格、活动动态预览和限量预约凭证集中呈现。
 
 ![CityHub 活动详情与预约](docs/images/showcase-activity-detail.png)
-
-### 社区互动
-
-社区动态关联真实 Activity，用户可以浏览活动体验、点赞并继续探索对应活动。
-
-![CityHub 社区互动](docs/images/showcase-community.png)
 
 ### AI 活动顾问
 
