@@ -15,16 +15,15 @@ The named execution prompt file was not present in the repository. This run foll
 
 ## Showcase Changes
 
-README now presents six vertically ordered modules: home, discovery, activity detail/reservation, community, AI assistant, and administrator activity management. Each module has one concise product description and one consistent-width horizontal screenshot.
+README now presents a compact five-image sequence: home, this-week hot activities, activity detail/reservation, community, and AI assistant. Each image has one concise product description and a consistent 1440px horizontal width.
 
 Removed the four obsolete `phase7-*` screenshots. New screenshots were captured from the real Docker/Nginx site at `http://127.0.0.1:8088`:
 
 - `showcase-home.png`
-- `showcase-discovery.png`
+- `showcase-home-hot.png`
 - `showcase-activity-detail.png`
 - `showcase-community.png`
 - `showcase-ai-assistant.png`
-- `showcase-admin-activities.png`
 
 The AI image was captured after a real Qwen `qwen3.7-flash` streaming query, “当代摄影艺术展在哪里？”, and shows the ActivityTool-backed answer linking to `/activities/3`.
 
@@ -35,7 +34,7 @@ The AI image was captured after a real Qwen `qwen3.7-flash` streaming query, “
 | Docker/Nginx screenshot capture | PASS |
 | Activity count | PASS — 12 |
 | Blog count | PASS — 8 |
-| README image references | PASS |
+| README image references | PASS — 5 images |
 | Maven compile | PASS |
 | npm build | PASS |
 | Docker compose config | PASS |
