@@ -103,8 +103,3 @@ npm run dev
 
 Docker 镜像使用上一步生成的 jar，避免将构建时的 Maven 网络可用性变成运行时依赖；Web 仍在镜像构建时执行 `npm ci` 与 `npm run build`。
 
-## 工程取舍
-
-- 限量预约当前是单 JVM `BlockingQueue` 方案，未引入 Kafka、RabbitMQ 或 Redis Stream，适合当前单实例展示场景。
-- AI 只承担活动发现、查询和预约引导；预约仍由现有 Core 流程处理。
-- Docker 下 Core 为兼容现有 MyBatis-Plus 版本，在 Compose 中设置了 Java 17 模块开放参数。
